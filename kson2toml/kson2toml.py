@@ -6,11 +6,11 @@ from kson2toml.ast import kson_to_toml_string
 
 def kson2toml(kson_string):
     """
-    Conversion logic from Kson to Toml would go here
+    Lógica de conversión de Kson a Toml
     
-    :param kson_string: The all Kson string
+    :param kson_string: La cadena completa en formato Kson
 
-    :return toml_string: Complete conversion to Toml string
+    :return toml_string: Conversión completa a cadena Toml
     """
     a = Kson.analyze(kson_string)
     kson_value = a.kson_value()

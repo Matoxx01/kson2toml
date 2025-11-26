@@ -9,7 +9,7 @@ Librería oficial para la transformación de KSON a TOML.
 ## Instalación
 
 ```bash
-pip install kson2toml # Aun no esta implementado por ahora
+pip install kson2toml
 ```
 
 O clona este repositorio:
