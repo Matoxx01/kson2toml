@@ -1,0 +1,36 @@
+# whitespace is NOT significant!
+person:
+  name: 'Leonardo Bonacci'
+  nickname: Fibonacci
+  favorite_books:
+    - title: Elements
+      author: Euclid
+
+    - title: Metaphysics
+      author: Aristotle
+      .
+  favorite_numbers:
+    - - 0
+      - 1
+      - 1
+      - 2
+      - '...'
+      - '(1 + √.5)/2'
+      - 'π'
+  # A Kson "embed block" containing TypeScript code
+  favorite_function: %typescript
+    /**
+     * Calculates the nth number in the Fibonacci sequence using recursion
+     */
+    function fibonacci(n: number): number {
+      if (n < 0) throw new Error("Invalid argument")
+      switch (n) {
+        case 0:
+          return 0
+       case 1:
+          return 1
+       default:
+          return fibonacci(n - 1) + fibonacci(n - 2)
+      }
+    }
+    %%

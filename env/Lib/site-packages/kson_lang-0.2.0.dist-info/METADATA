@@ -1,0 +1,71 @@
+Metadata-Version: 2.4
+Name: kson-lang
+Version: 0.2.0
+Summary: KSON: a next-gen configuration language and love letter to the humans maintaining computer configuration
+Author-email: KSON <kson@kson.org>
+License-Expression: Apache-2.0
+Project-URL: Homepage, https://github.com/kson-org/kson
+Project-URL: Issues, https://github.com/kson-org/kson/issues
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: File Formats :: JSON
+Classifier: Topic :: File Formats :: JSON :: JSON Schema
+Classifier: Topic :: Text Processing :: Markup
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: cffi>=1.17.1
+Dynamic: license-file
+
+# Python bindings for Kson's public API
+
+[KSON](https://kson.org) is available on PyPI for Linux, macOS and Windows.
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install kson
+```
+
+### Build from source
+
+```bash
+git clone https://github.com/kson-org/kson.git
+cd kson && ./gradlew :lib-python:build
+pip install ./lib-python
+```
+
+## Example usage
+
+
+```python
+from kson import Kson, Success
+result = Kson.to_json("key: [1, 2, 3, 4]")
+assert isinstance(result, Success)
+print(result.output())
+```
+
+This should print the following to stdout:
+
+```json
+{
+  "key": [
+    1,
+    2,
+    3,
+    4
+  ]
+}
+```
