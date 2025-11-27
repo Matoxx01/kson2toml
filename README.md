@@ -1,6 +1,6 @@
 # KSON2TOML
 
-Librería oficial para la transformación de KSON a TOML.
+Librería para la transformación de KSON a TOML.
 
 ## Descripción
 
@@ -9,7 +9,7 @@ Librería oficial para la transformación de KSON a TOML.
 ## Instalación
 
 ```bash
-pip install kson2toml
+pip install kson2toml # Aun falta para su uso correcto
 ```
 
 O clona este repositorio:
@@ -117,7 +117,7 @@ python tests/test.py
 
 ## Licencia
 
-Este proyecto es la librería oficial de conversión KSON a TOML.
+Este proyecto es la librería de conversión KSON a TOML.
 
 ## Contribuir
 
