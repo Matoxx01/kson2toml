@@ -18,7 +18,12 @@ def alltests():
     - TomlTable
     - TomlEmbed
     """
-    # All implement
+
+    # Validation if the 'tomlexpected' is a valid TOML and see if are errors
+
+    # Run all tests conversions of 'ksonstring' to toml with the ast, and compare if its the same as tomlexpected
+
+    # do a HTML report with the results of each type of test
     pass
 
 if __name__ == "__main__":
