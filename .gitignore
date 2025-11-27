@@ -1,6 +1,7 @@
 .pypirc
 setup.py
 **/__pycache__/
+tests/test_report.html
 
 # Virtual environment
 env/
