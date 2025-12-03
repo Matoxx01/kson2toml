@@ -4,11 +4,11 @@ testEmbedBlockSource = {
             this is a raw embed
         %%
     """,
-    "tomlexpected": """
-        embedContent = ${"\"\"\""}
+    "tomlexpected": '''
+        embedContent = """
         this is a raw embed
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockSource_2 = {
@@ -17,13 +17,13 @@ testEmbedBlockSource_2 = {
             select * from something
         %%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
         embedTag = "sql"
-        embedContent = ${"\"\"\""}
+        embedContent = """
         select * from something
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockSource_3 = {
@@ -32,13 +32,13 @@ testEmbedBlockSource_3 = {
             select * from something
         %%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
         embedTag = "sql"
-        embedContent = ${"\"\"\""}
+        embedContent = """
         select * from something
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockSource_4 = {
@@ -47,13 +47,13 @@ testEmbedBlockSource_4 = {
             select * from something
         %%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
         embedTag = "sql"
-        embedContent = ${"\"\"\""}
+        embedContent = """
         select * from something
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockWithAlternativeDelimiters = {
@@ -62,11 +62,11 @@ testEmbedBlockWithAlternativeDelimiters = {
             this is a raw embed with alternative delimiter
         %%
     """,
-    "tomlexpected": """
-        embedContent = ${"\"\"\""}
+    "tomlexpected": '''
+        embedContent = """
         this is a raw embed with alternative delimiter
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockWithAlternativeDelimiters_2 = {
@@ -75,13 +75,13 @@ testEmbedBlockWithAlternativeDelimiters_2 = {
             select * from something
         %%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
         embedTag = "sql"
-        embedContent = ${"\"\"\""}
+        embedContent = """
         select * from something
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockWithEscapes = {
@@ -91,14 +91,14 @@ testEmbedBlockWithEscapes = {
     whereas in this case, this is not $\$
     %%
     """,
-    "tomlexpected": """
-    embedContent = ${"\"\"\""}
+    "tomlexpected": '''
+    embedContent = """
     %
-    this is an escaped delim %\%
-    whereas in this case, this is not $\$
+    this is an escaped delim %%
+    whereas in this case, this is not $$
     %%
-    ${"\"\"\""}
     """
+    '''
 }
 
 testEmbedBlockWithEscapes_2 = {
@@ -107,13 +107,13 @@ testEmbedBlockWithEscapes_2 = {
     more %% %% %% than $\$ should yield a $\$-delimited block
     $$
     """,
-    "tomlexpected": """
-    embedContent = ${"\"\"\""}
+    "tomlexpected": '''
+    embedContent = """
     %
-    more %\% %\% %\% than $$ should yield a $$-delimited block
+    more %% %% %% than $$ should yield a $$-delimited block
     %%
-    ${"\"\"\""}
     """
+    '''
 }
 
 testEmbedBlockWithAlternativeDelimiterAndEscapes = {
@@ -122,11 +122,11 @@ testEmbedBlockWithAlternativeDelimiterAndEscapes = {
     these double $\$ dollars are %%%% embedded but escaped
     $$
     """,
-    "tomlexpected": """
-    embedContent = ${"\"\"\""}
-    these double $\$ dollars are %%%% embedded but escaped
-    ${"\"\"\""}
+    "tomlexpected": '''
+    embedContent = """
+    these double $$ dollars are %%%% embedded but escaped
     """
+    '''
 }
 
 testEmbedBlockEndingInSlash = {
@@ -134,11 +134,11 @@ testEmbedBlockEndingInSlash = {
         %
         %\%%
     """,
-    "tomlexpected": """
-        embedContent = ${"\"\"\""}
+    "tomlexpected": '''
+        embedContent = """
         %\
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockTagsRetainment = {
@@ -146,11 +146,11 @@ testEmbedBlockTagsRetainment = {
         %
         content%%
     """,
-    "tomlexpected": """
-        embedContent = ${"\"\"\""}
+    "tomlexpected": '''
+        embedContent = """
         content
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockTagsRetainment_2 = {
@@ -158,13 +158,13 @@ testEmbedBlockTagsRetainment_2 = {
         %sql
         content%%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
         embedTag = "sql"
-        embedContent = ${"\"\"\""}
+        embedContent = """
         content
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockTagsRetainment_3 = {
@@ -172,13 +172,13 @@ testEmbedBlockTagsRetainment_3 = {
         %: meta
         content%%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
         embedTag = "meta"
-        embedContent = ${"\"\"\""}
+        embedContent = """
         content
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockFromObject = {
@@ -187,12 +187,12 @@ testEmbedBlockFromObject = {
             content
             %%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
-        embedContent = ${"\"\"\""}
+        embedContent = """
         content
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbedBlockFromObject_2 = {
@@ -201,10 +201,10 @@ testEmbedBlockFromObject_2 = {
             embedContent: 'content\n'
             unrelatedKey: 'is not an embed block'
     """,
-    "tomlexpected": """
+    "tomlexpected": r"""
         [embedBlock]
-        "embedContent" = "content\n"
-        "unrelatedKey" = "is not an embed block"
+        embedContent = "content\n"
+        unrelatedKey = "is not an embed block"
     """
 }
 
@@ -233,14 +233,14 @@ testEmbeddedEmbedBlockFromObject = {
             %%
             $$
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         [embedBlock]
-        embedContent = ${"\"\"\""}
+        embedContent = """
         embeddedEmbed: %
         EMBED CONTENT
         %%
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testEmbeddedEmbedBlockFromObject_2 = {
@@ -251,14 +251,14 @@ testEmbeddedEmbedBlockFromObject_2 = {
             $$
             %%
     """,
-    "tomlexpected": """
+    "tomlexpected": r'''
         [embedBlock]
-        embedContent = ${"\"\"\""}
+        embedContent = """
         embeddedEmbed: $
         EMBED WITH %\\% CONTENT
         $$
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 all_tests = [

@@ -50,10 +50,12 @@ testObjectSourceMixedWithStringContainingRawNewlines = {
         raw newline in it and at its end
         '
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         first = "value"
-        second = "this is a string with a\nraw newline in it and at its end\n"
-    """
+        second = """this is a string with a
+        raw newline in it and at its end
+        """
+    '''
 }
 
 testProhibitedKey = {
@@ -101,7 +103,7 @@ testNestedNonDelimitedObjects = {
             .
         unnested_key: 44
     """,
-    "tomlexpected": """"
+    "tomlexpected": """
         unnested_key = 44
         
         [key]

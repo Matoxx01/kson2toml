@@ -3,7 +3,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from kson2toml.kson2toml import kson2toml
 import toml
-import importlib
+import importlib, re
+from colorama import Fore, Style, init
 import importlib.util
 from report_generator import generate_html_report
 
@@ -85,15 +86,15 @@ def alltests():
     
     # Report validation results
     if validation_errors:
-        print("\n⚠️  VALIDATION ERRORS FOUND IN 'tomlexpected':")
+        printmas("\n[WARNING] VALIDATION ERRORS FOUND IN 'tomlexpected':")
         print("-" * 60)
         for err in validation_errors:
-            print(f"  [❌ {err['module']}] [{err['test']}]")
+            printmas(f"  [FAIL {err['module']}] [{err['test']}]")
             print(f"     Error: {err['error']}")
         print("-" * 60)
         print(f"\nTotal invalid 'tomlexpected': {len(validation_errors)}")
     else:
-        print("\n✓ All 'tomlexpected' fields are valid TOML")
+        printmas("\n[OK] All 'tomlexpected' fields are valid TOML")
     
     # ============================================================
     # PHASE 2: Run conversion tests
@@ -149,14 +150,14 @@ def alltests():
         except toml.TomlDecodeError as e:
             result['expected_valid'] = False
             result['errors'].append(f"Expected TOML is invalid: {e}")
-            print(f"  ✗ {test_name}: Expected TOML is invalid")
+            printmas(f"  [FAIL] {test_name}: Expected TOML is invalid")
             all_results.append(result)
             failed_tests += 1
             continue
         except Exception as e:
             result['expected_valid'] = False
             result['errors'].append(f"Unexpected error validating expected TOML: {e}")
-            print(f"  ✗ {test_name}: Unexpected error in expected TOML")
+            printmas(f"  [FAIL] {test_name}: Unexpected error in expected TOML")
             all_results.append(result)
             failed_tests += 1
             continue
@@ -167,7 +168,7 @@ def alltests():
             result['toml_generated'] = toml_generated
         except Exception as e:
             result['errors'].append(f"Conversion error: {type(e).__name__}: {e}")
-            print(f"  ✗ {test_name}: Conversion failed - {e}")
+            printmas(f"  [FAIL] {test_name}: Conversion failed - {e}")
             all_results.append(result)
             failed_tests += 1
             continue
@@ -179,14 +180,14 @@ def alltests():
         except toml.TomlDecodeError as e:
             result['generated_valid'] = False
             result['errors'].append(f"Generated TOML is invalid: {e}")
-            print(f"  ✗ {test_name}: Generated TOML is invalid")
+            printmas(f"  [FAIL] {test_name}: Generated TOML is invalid")
             all_results.append(result)
             failed_tests += 1
             continue
         except Exception as e:
             result['generated_valid'] = False
             result['errors'].append(f"Unexpected error validating generated TOML: {e}")
-            print(f"  ✗ {test_name}: Unexpected error validating generated TOML")
+            printmas(f"  [FAIL] {test_name}: Unexpected error validating generated TOML")
             all_results.append(result)
             failed_tests += 1
             continue
@@ -196,7 +197,7 @@ def alltests():
             if parsed_expected == parsed_generated:
                 result['passed'] = True
                 passed_tests += 1
-                print(f"  ✓ {test_name}: PASSED")
+                printmas(f"  [PASS] {test_name}")
             else:
                 result['errors'].append(
                     f"Semantic mismatch:\n"
@@ -204,11 +205,11 @@ def alltests():
                     f"Generated: {parsed_generated}"
                 )
                 failed_tests += 1
-                print(f"  ✗ {test_name}: FAILED - Output mismatch")
+                printmas(f"  [FAIL] {test_name}: Output mismatch")
         except Exception as e:
             result['errors'].append(f"Comparison error: {e}")
             failed_tests += 1
-            print(f"  ✗ {test_name}: FAILED - Comparison error")
+            printmas(f"  [FAIL] {test_name}: Comparison error")
         
         all_results.append(result)
     
@@ -245,18 +246,37 @@ def kson_totoml_validation():
     # Validar que el TOML sea válido
     try:
         parsed_toml = toml.loads(result)
-        print("✓ El TOML generado es válido")
+        printmas("[OK] El TOML generado es valido")
         print(f"Contenido parseado: {parsed_toml}")
         return True
     except toml.TomlDecodeError as e:
-        print("✗ El TOML generado NO es válido")
+        printmas("[FAIL] El TOML generado NO es valido")
         print(f"Errores encontrados:")
         print(f"  - {e}")
         return False
     except Exception as e:
-        print("✗ Error inesperado al validar el TOML")
+        printmas("[FAIL] Error inesperado al validar el TOML")
         print(f"  - {type(e).__name__}: {e}")
         return False
+    
+init(autoreset=True)
+
+def printmas(text: str):
+    colors = {
+        "[WARNING]": Fore.YELLOW,
+        "[PASS]": Fore.GREEN,
+        "[FAIL]": Fore.RED,
+        "[OK]": Fore.BLUE
+    }
+
+    def replacer(match):
+        tag = match.group(0)
+        color = colors.get(tag, "")
+        return f"{color}{tag}{Style.RESET_ALL}"
+
+    pattern = r"\[(WARNING|PASS|FAIL|OK)\]"
+    colored_text = re.sub(pattern, replacer, text)
+    print(colored_text)  # ← imprime directamente
     
 if __name__ == "__main__":
     success = alltests()

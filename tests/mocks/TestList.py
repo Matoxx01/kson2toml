@@ -36,11 +36,14 @@ testSquareBracketListSource_3 = {
         - null
     """,
     "tomlexpected": """
-        value = [
-            true,
-            false,
-            "null"
-        ]
+        [[value]]
+        item = true
+        
+        [[value]]
+        item = false
+        
+        [[value]]
+        item = "null"
     """
 }
 
@@ -54,15 +57,14 @@ testSquareBracketListSource_4 = {
             - 5.6
     """,
     "tomlexpected": """
-        value = [
-            true,
-            false,
-            [
-            1.2,
-            3.4,
-            5.6
-            ]
-        ]
+        [[value]]
+        item = true
+        
+        [[value]]
+        item = false
+        
+        [[value]]
+        item = [1.2, 3.4, 5.6]
     """
 }
 
@@ -161,11 +163,10 @@ testDashListNestedWithDashList = {
             [
                 "a",
                 "b",
-            [
+                "",
                 "a1",
                 "b1",
-                "c1"
-            ],
+                "c1",
                 "c"
             ]
         ]
@@ -184,17 +185,17 @@ testCommaFreeList = {
             - sublist
     """,
     "tomlexpected": """
-        value = [
-            "null",
-            true,
-            [
-                "sublist"
-            ],
-            [
-                "another",
-                "sublist"
-            ]
-        ]
+        [[value]]
+        item = "null"
+        
+        [[value]]
+        item = true
+        
+        [[value]]
+        item = ["sublist"]
+        
+        [[value]]
+        item = ["another", "sublist"]
     """
 }
 
@@ -207,13 +208,11 @@ testNestedNonDelimitedDashLists = {
         - 'outer list elem 1'
     """,
     "tomlexpected": """
-        value = [
-        [
-            "sub-list elem 1",
-            "sub-list elem 2"
-        ],
-            "outer list elem 1"
-        ]
+        [[value]]
+        item = ["sub-list elem 1", "sub-list elem 2"]
+        
+        [[value]]
+        item = "outer list elem 1"
     """
 }
 

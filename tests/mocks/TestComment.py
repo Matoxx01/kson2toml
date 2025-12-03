@@ -281,12 +281,12 @@ testCommentPreservationOnEmbedBlocks = {
         embedded stuff
         %%
     """,
-    "tomlexpected": """
+    "tomlexpected": '''
         # a comment on an embed block
-        value = ${"\"\"\""}
+        value = """
         embedded stuff
-        ${"\"\"\""}
-    """
+        """
+    '''
 }
 
 testTrailingCommentOnLists = {

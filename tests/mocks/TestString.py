@@ -10,11 +10,12 @@ testEmptyString = {
 
 testStringWithRawWhitespace = {
     "ksonsource": """
-    |'This is a string with raw, unescaped whitespace ${'\t'}
+    |'This is a string with raw, unescaped whitespace ${' '}|
     |${'\t'}tabbed-indented second line'
     """,
     "tomlexpected": """
-    value = "This is a string with raw, unescaped whitespace \t\n\ttabbed-indented second line"
+    value = \"\"\"This is a string with raw, unescaped whitespace \t
+\ttabbed-indented second line\"\"\"
     """
 }
 
@@ -31,9 +32,9 @@ testBackslashEscaping = {
     "ksonsource": """
         'string with \\ and "'
     """,
-    "tomlexpected": """
-        value = "string with \\ and \""
-    """
+    "tomlexpected": r'''
+        value = 'string with \\ and "'
+    '''
 }
 
 testBackslashEscaping_2 = {
@@ -50,7 +51,7 @@ testMultipleDelimiters = {
         'string \'with\' "quotes"'
     """,
     "tomlexpected": """
-        value = "string 'with' \"quotes\""
+        value = "string 'with' \\\"quotes\\\""
     """
 }
 
@@ -58,9 +59,9 @@ testEdgeCases = {
     "ksonsource": """
         '""'
     """,
-    "tomlexpected": """
-        value = "\"\""
-    """
+    "tomlexpected": '''
+        value = "\\"\\""
+    '''
 }
 
 testEdgeCases_2 = {
@@ -86,7 +87,7 @@ testBackslashSequences_2 = {
         '\\'
     """,
     "tomlexpected": """
-        value = "\\"
+        value = "\\\\"
     """
 }
 

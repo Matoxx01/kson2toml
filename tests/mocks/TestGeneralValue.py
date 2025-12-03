@@ -48,12 +48,12 @@ testParsingMultiLevelMixedObjectsAndLists_2 = {
     - outer_list_elem
     """,
     "tomlexpected": """
-    value = [
-        [
-        {inner_key = "x"}
-        ],
-        "outer_list_elem"
-    ]
+    [[value]]
+    [[value.list_item]]
+    inner_key = "x"
+    
+    [[value]]
+    list_item = "outer_list_elem"
     """
 }
 
