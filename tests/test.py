@@ -193,23 +193,52 @@ def alltests():
             continue
         
         # Step 4: Compare parsed results (semantic comparison)
+        semantic_match = False
         try:
             if parsed_expected == parsed_generated:
-                result['passed'] = True
-                passed_tests += 1
-                printmas(f"  [PASS] {test_name}")
+                semantic_match = True
             else:
                 result['errors'].append(
                     f"Semantic mismatch:\n"
                     f"Expected: {parsed_expected}\n"
                     f"Generated: {parsed_generated}"
                 )
-                failed_tests += 1
-                printmas(f"  [FAIL] {test_name}: Output mismatch")
         except Exception as e:
             result['errors'].append(f"Comparison error: {e}")
+        
+        # Step 5: Textual comparison (tomlexpected == toml_generated)
+        # Normalize by removing ALL whitespace for strict structural comparison
+        def normalize_toml_strict(text):
+            """Remove all whitespace to compare structure only"""
+            return ''.join(text.split())
+        
+        toml_expected_strict = normalize_toml_strict(toml_expected)
+        toml_generated_strict = normalize_toml_strict(toml_generated)
+        
+        result['textual_match'] = (toml_expected_strict == toml_generated_strict)
+        if not result['textual_match']:
+            # Show both strict comparison and readable versions
+            result['errors'].append(
+                f"Textual mismatch (strict comparison):\n"
+                f"Expected (no whitespace): {toml_expected_strict}\n"
+                f"Generated (no whitespace): {toml_generated_strict}\n\n"
+                f"Expected (readable):\n{toml_expected.strip()}\n\n"
+                f"Generated (readable):\n{toml_generated.strip()}"
+            )
+        
+        # Final verdict: BOTH semantic AND textual must match
+        if semantic_match and result['textual_match']:
+            result['passed'] = True
+            passed_tests += 1
+            printmas(f"  [PASS] {test_name}")
+        else:
             failed_tests += 1
-            printmas(f"  [FAIL] {test_name}: Comparison error")
+            if semantic_match and not result['textual_match']:
+                printmas(f"  [FAIL] {test_name}: Textual mismatch (semantic OK)")
+            elif not semantic_match and result['textual_match']:
+                printmas(f"  [FAIL] {test_name}: Semantic mismatch (textual OK)")
+            else:
+                printmas(f"  [FAIL] {test_name}: Both semantic and textual mismatch")
         
         all_results.append(result)
     

@@ -9,9 +9,9 @@ testEmptyString = {
 }
 
 testStringWithRawWhitespace = {
-    "ksonsource": """
-    |'This is a string with raw, unescaped whitespace ${' '}|
-    |${'\t'}tabbed-indented second line'
+    "ksonsource": f"""
+    'This is a string with raw, unescaped whitespace ${' '}
+    ${'\t'}tabbed-indented second line'
     """,
     "tomlexpected": """
     value = \"\"\"This is a string with raw, unescaped whitespace \t
@@ -21,7 +21,7 @@ testStringWithRawWhitespace = {
 
 testStringEscapes = {
     "ksonsource": """
-        'this\'ll need "escaping"'
+        'this\\'ll need "escaping"'
     """,
     "tomlexpected": """
     value = \"this'll need \\\"escaping\\\"\"
@@ -30,7 +30,7 @@ testStringEscapes = {
 
 testBackslashEscaping = {
     "ksonsource": """
-        'string with \\ and "'
+        'string with \\\\ and "'
     """,
     "tomlexpected": r'''
         value = 'string with \\ and "'
@@ -48,7 +48,7 @@ testBackslashEscaping_2 = {
 
 testMultipleDelimiters = {
     "ksonsource": """
-        'string \'with\' "quotes"'
+        'string \\'with\\' "quotes"'
     """,
     "tomlexpected": """
         value = "string 'with' \\\"quotes\\\""
@@ -84,7 +84,7 @@ testBackslashSequences = {
 
 testBackslashSequences_2 = {
     "ksonsource": """
-        '\\'
+        '\\\\'
     """,
     "tomlexpected": """
         value = "\\\\"
@@ -152,5 +152,5 @@ all_tests = [
     testReservedKeywordStringsAreQuoted,
     testReservedKeywordStringsAreQuoted_2,
     testReservedKeywordStringsAreQuoted_3,
-    testReservedKeywordStringsAreQuoted_4,
+    testReservedKeywordStringsAreQuoted_4
 ]
