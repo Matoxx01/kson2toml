@@ -2,11 +2,19 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from kson2toml.kson2toml import kson2toml
-import toml
 import importlib, re
 from colorama import Fore, Style, init
 import importlib.util
 from report_generator import generate_html_report
+
+try:
+    import tomli as toml
+    TomlDecodeError = (toml.TOMLDecodeError, ValueError)
+    print("Using tomli for TOML parsing (supports heterogeneous arrays)")
+except ImportError:
+    import toml
+    TomlDecodeError = toml.TomlDecodeError
+    print("Using toml library (WARNING: may not support heterogeneous arrays)")
 
 # All tests
 
@@ -71,7 +79,7 @@ def alltests():
                 # Validate tomlexpected
                 try:
                     toml.loads(test_case['tomlexpected'])
-                except toml.TomlDecodeError as e:
+                except TomlDecodeError as e:
                     validation_errors.append({
                         'module': module_name,
                         'test': test_name,
@@ -147,7 +155,7 @@ def alltests():
         try:
             parsed_expected = toml.loads(toml_expected)
             result['expected_valid'] = True
-        except toml.TomlDecodeError as e:
+        except TomlDecodeError as e:
             result['expected_valid'] = False
             result['errors'].append(f"Expected TOML is invalid: {e}")
             printmas(f"  [FAIL] {test_name}: Expected TOML is invalid")
@@ -177,7 +185,7 @@ def alltests():
         try:
             parsed_generated = toml.loads(toml_generated)
             result['generated_valid'] = True
-        except toml.TomlDecodeError as e:
+        except TomlDecodeError as e:
             result['generated_valid'] = False
             result['errors'].append(f"Generated TOML is invalid: {e}")
             printmas(f"  [FAIL] {test_name}: Generated TOML is invalid")
@@ -278,7 +286,7 @@ def kson_totoml_validation():
         printmas("[OK] El TOML generado es valido")
         print(f"Contenido parseado: {parsed_toml}")
         return True
-    except toml.TomlDecodeError as e:
+    except TomlDecodeError as e:
         printmas("[FAIL] El TOML generado NO es valido")
         print(f"Errores encontrados:")
         print(f"  - {e}")
