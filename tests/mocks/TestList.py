@@ -151,7 +151,7 @@ testDashListNestedWithDashList = {
         - 
             - a
             - b
-            - 
+            - ""
             - a1
             - b1
             - c1
@@ -168,7 +168,7 @@ testDashListNestedWithDashList = {
                 "b1",
                 "c1"
             ],
-                "c"
+            "c"
         ]
     """
 }
