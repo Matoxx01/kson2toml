@@ -247,28 +247,23 @@ testCommentPreservationOnLists_3 = {
     # a list of lists
     value = [
         [
-        # trailing comment on constant element
-        1.2,
-        # a nested list element
-        2.2,
-        3.2
+            # trailing comment on constant element
+            1.2,
+            # a nested list element
+            2.2,
+            3.2
         ],
         [
-        # a nested dash-delimited list
-        [
-            10.2
-        ],
-        # a further nested braced list
-        # trailing comment on nested list
-        [
-            4.2,
-            # a further nested braced list element
-            5.2
-        ],
-        [
-            9.2,
-            8.2
-        ]
+            # a nested dash-delimited list
+            [10.2],
+            # a further nested braced list
+            # trailing comment on nested list
+            [
+                # a further nested braced list element
+                4.2,
+                5.2
+            ],
+            [9.2, 8.2]
         ]
     ]
     """

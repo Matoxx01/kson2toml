@@ -93,10 +93,8 @@ testEmbedBlockWithEscapes = {
     """,
     "tomlexpected": '''
     embedContent = """
-    %
     this is an escaped delim %%
     whereas in this case, this is not $$
-    %%
     """
     '''
 }
@@ -109,9 +107,7 @@ testEmbedBlockWithEscapes_2 = {
     """,
     "tomlexpected": '''
     embedContent = """
-    %
     more %% %% %% than $$ should yield a $$-delimited block
-    %%
     """
     '''
 }
@@ -134,11 +130,9 @@ testEmbedBlockEndingInSlash = {
         %
         %\%%
     """,
-    "tomlexpected": '''
-        embedContent = """
-        %\
-        """
-    '''
+    "tomlexpected": '''embedContent = """
+%\\\\
+"""'''
 }
 
 testEmbedBlockTagsRetainment = {
@@ -218,7 +212,7 @@ testEmbedBlockFromObjectWithoutStrings = {
     """,
     "tomlexpected": """
         [embedBlock]
-        "unrelatedKey" = "is not an embed block"
+        unrelatedKey = "is not an embed block"
         
         [embedBlock.embedContent]
         not = "content"

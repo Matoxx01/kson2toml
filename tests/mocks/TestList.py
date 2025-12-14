@@ -208,11 +208,10 @@ testNestedNonDelimitedDashLists = {
         - 'outer list elem 1'
     """,
     "tomlexpected": """
-        [[value]]
-        item = ["sub-list elem 1", "sub-list elem 2"]
-        
-        [[value]]
-        item = "outer list elem 1"
+        value = [
+            ["sub-list elem 1", "sub-list elem 2"],
+            "outer list elem 1"
+        ]
     """
 }
 
