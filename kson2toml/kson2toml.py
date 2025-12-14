@@ -2,7 +2,7 @@
 Documentation for the Kson2toml converter.
 """
 from kson import Kson
-from kson2toml.ast import kson_to_toml_string
+from kson2toml.ast import kson_to_toml_string, extract_comments_with_mapping
 
 def kson2toml(kson_string):
     """
@@ -21,6 +21,10 @@ def kson2toml(kson_string):
         error_messages = '\n'.join([f"Error: {err.message()}" for err in errors])
         raise ValueError(f"Failed to parse Kson:\n{error_messages}")
     
-    toml_string = kson_to_toml_string(kson_value)
+    # Extraer comentarios del código fuente con mapeo mejorado
+    tokens = a.tokens()
+    comment_map = extract_comments_with_mapping(kson_string, tokens)
+    
+    toml_string = kson_to_toml_string(kson_value, comment_map, kson_string, tokens)
     
     return toml_string

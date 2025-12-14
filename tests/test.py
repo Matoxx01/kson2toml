@@ -6,6 +6,7 @@ import importlib, re
 from colorama import Fore, Style, init
 import importlib.util
 from report_generator import generate_html_report
+import textwrap
 
 try:
     import tomli as toml
@@ -78,7 +79,7 @@ def alltests():
                 
                 # Validate tomlexpected
                 try:
-                    toml.loads(test_case['tomlexpected'])
+                    toml.loads(textwrap.dedent(test_case['tomlexpected']))
                 except TomlDecodeError as e:
                     validation_errors.append({
                         'module': module_name,
@@ -131,8 +132,8 @@ def alltests():
         
         total_tests += 1
         
-        kson_source = test_case['ksonsource']
-        toml_expected = test_case['tomlexpected']
+        kson_source = textwrap.dedent(test_case['ksonsource'])
+        toml_expected = textwrap.dedent(test_case['tomlexpected'])
         
         # Normalize whitespace for comparison
         toml_expected_normalized = '\n'.join(
@@ -284,7 +285,7 @@ def kson_totoml_validation():
     try:
         parsed_toml = toml.loads(result)
         printmas("[OK] El TOML generado es valido")
-        print(f"Contenido parseado: {parsed_toml}")
+        print(f"Contenido parseado: \n{parsed_toml}")
         return True
     except TomlDecodeError as e:
         printmas("[FAIL] El TOML generado NO es valido")
