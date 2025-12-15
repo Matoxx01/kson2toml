@@ -243,21 +243,11 @@ class TomlTable(TomlNode):
             comments = {}
         
         lines = []
-        simple_values = []
-        nested_tables = []
-        nested_arrays = []
         
-        for key, value in self.properties.items():
-            if isinstance(value, TomlTable):
-                nested_tables.append((key, value))
-            elif isinstance(value, TomlArray) and any(isinstance(elem, TomlTable) for elem in value.elements):
-                nested_arrays.append((key, value))
-            else:
-                simple_values.append((key, value))
+        # Build property comments map
+        property_comments = {k: [] for k in self.properties.keys()}
         
-        property_comments = {k: [] for k, v in simple_values}
-        
-        if source and comments and simple_values:
+        if source and comments:
             source_lines = source.split('\n')
             key_line = {}
             
@@ -267,54 +257,182 @@ class TomlTable(TomlNode):
                     key_part = stripped.split(':', 1)[0].strip()
                     if key_part.startswith('"') and key_part.endswith('"'):
                         key_part = key_part[1:-1]
-                    for k, v in simple_values:
-                        if k == key_part:
-                            key_line[k] = line_num
+                    if key_part in self.properties:
+                        key_line[key_part] = line_num
             
             for line_num, comment_list in comments.items():
                 for k, k_line in key_line.items():
                     if k_line == line_num:
                         property_comments[k].extend(comment_list)
         
-        for key, value in simple_values:
+        # Categorize properties while preserving order
+        items_with_types = []
+        for key, value in self.properties.items():
+            if isinstance(value, TomlTable):
+                item_type = 'nested_table'
+            elif isinstance(value, TomlArray) and any(isinstance(elem, TomlTable) for elem in value.elements):
+                item_type = 'nested_array'
+            else:
+                item_type = 'simple'
+            items_with_types.append((key, value, item_type))
+        
+        # Check if we have both simple and nested items
+        has_simple = any(t == 'simple' for _, _, t in items_with_types)
+        has_nested = any(t in ('nested_table', 'nested_array') for _, _, t in items_with_types)
+        
+        # Track if we've emitted the header for simple values
+        simple_section_header_emitted = False
+        
+        # Process items in original order
+        for key, value, item_type in items_with_types:
             for comment_text in property_comments[key]:
                 lines.append(comment_text)
             
-            if isinstance(value, TomlEmbed) and key != 'embedContent':
+            if item_type == 'simple':
+                # Emit table header before first simple value if there are nested structures
+                if not simple_section_header_emitted and table_path:
+                    # Add blank line before header if there's content already
+                    if lines and has_nested:
+                        lines.append('')
+                    lines.append(f'[{table_path}]')
+                    simple_section_header_emitted = True
+                
+                if isinstance(value, TomlEmbed) and key != 'embedContent':
+                    full_path = f'{table_path}.{key}' if table_path else key
+                    if lines:
+                        lines.append('')
+                    lines.append(f'[{full_path}]')
+                    lines.append(f'embedContent = {value.to_toml(indent_level, {}, source)}')
+                else:
+                    if key == 'embedContent' and isinstance(value, TomlString):
+                        value.allow_multiline = False
+                        value_str = value.to_toml(indent_level, {}, source)
+                        value.allow_multiline = True
+                    else:
+                        value_str = value.to_toml(indent_level, {}, source)
+                    
+                    if ' ' in key or '-' in key or key in ['false', 'true', 'null']:
+                        lines.append(f'"{key}" = {value_str}')
+                    else:
+                        lines.append(f'{key} = {value_str}')
+            
+            elif item_type == 'nested_table':
+                # Nested table
+                full_path = f'{table_path}.{key}' if table_path else key
+                if table_path:
+                    # If we have a parent table path, emit the header and content separately
+                    if lines:
+                        lines.append('')
+                    lines.append(f'[{full_path}]')
+                    nested_content = value._to_toml_content(0, full_path, {}, source)
+                    if nested_content:
+                        lines.append(nested_content)
+                else:
+                    # If no parent path (root level), let the nested table emit everything
+                    nested_output = value.to_toml(0, full_path, comments={}, source=source)
+                    if lines:
+                        lines.append('')
+                    lines.append(nested_output)
+            
+            elif item_type == 'nested_array':
+                # Array of tables
+                for elem in value.elements:
+                    if isinstance(elem, TomlTable):
+                        full_path = f'{table_path}.{key}' if table_path else key
+                        if lines:
+                            lines.append('')
+                        lines.append(f'[[{full_path}]]')
+                        nested_content = elem._to_toml_content(0, full_path, {}, source)
+                        if nested_content:
+                            lines.append(nested_content)
+        
+        return '\n'.join(lines)
+    
+    def _to_toml_content(self, indent_level=0, table_path='', comments=None, source=None) -> str:
+        """Emit table content without the header."""
+        if comments is None:
+            comments = {}
+        
+        lines = []
+        
+        # Build property comments map
+        property_comments = {k: [] for k in self.properties.keys()}
+        
+        if source and comments:
+            source_lines = source.split('\n')
+            key_line = {}
+            
+            for line_num, line in enumerate(source_lines):
+                stripped = line.strip()
+                if ':' in stripped and not stripped.startswith('#'):
+                    key_part = stripped.split(':', 1)[0].strip()
+                    if key_part.startswith('"') and key_part.endswith('"'):
+                        key_part = key_part[1:-1]
+                    if key_part in self.properties:
+                        key_line[key_part] = line_num
+            
+            for line_num, comment_list in comments.items():
+                for k, k_line in key_line.items():
+                    if k_line == line_num:
+                        property_comments[k].extend(comment_list)
+        
+        # Categorize properties while preserving order
+        items_with_types = []
+        for key, value in self.properties.items():
+            if isinstance(value, TomlTable):
+                item_type = 'nested_table'
+            elif isinstance(value, TomlArray) and any(isinstance(elem, TomlTable) for elem in value.elements):
+                item_type = 'nested_array'
+            else:
+                item_type = 'simple'
+            items_with_types.append((key, value, item_type))
+        
+        # Process items in original order
+        for key, value, item_type in items_with_types:
+            for comment_text in property_comments[key]:
+                lines.append(comment_text)
+            
+            if item_type == 'simple':
+                if isinstance(value, TomlEmbed) and key != 'embedContent':
+                    full_path = f'{table_path}.{key}' if table_path else key
+                    if lines:
+                        lines.append('')
+                    lines.append(f'[{full_path}]')
+                    lines.append(f'embedContent = {value.to_toml(indent_level, {}, source)}')
+                else:
+                    if key == 'embedContent' and isinstance(value, TomlString):
+                        value.allow_multiline = False
+                        value_str = value.to_toml(indent_level, {}, source)
+                        value.allow_multiline = True
+                    else:
+                        value_str = value.to_toml(indent_level, {}, source)
+                    
+                    if ' ' in key or '-' in key or key in ['false', 'true', 'null']:
+                        lines.append(f'"{key}" = {value_str}')
+                    else:
+                        lines.append(f'{key} = {value_str}')
+            
+            elif item_type == 'nested_table':
+                # Nested table
                 full_path = f'{table_path}.{key}' if table_path else key
                 if lines:
                     lines.append('')
                 lines.append(f'[{full_path}]')
-                lines.append(f'embedContent = {value.to_toml(indent_level, {}, source)}')
-            else:
-                if key == 'embedContent' and isinstance(value, TomlString):
-                    value.allow_multiline = False
-                    value_str = value.to_toml(indent_level, {}, source)
-                    value.allow_multiline = True
-                else:
-                    value_str = value.to_toml(indent_level, {}, source)
-                
-                if ' ' in key or '-' in key or key in ['false', 'true', 'null']:
-                    lines.append(f'"{key}" = {value_str}')
-                else:
-                    lines.append(f'{key} = {value_str}')
-        
-        for key, array in nested_arrays:
-            for elem in array.elements:
-                if isinstance(elem, TomlTable):
-                    full_path = f'{table_path}.{key}' if table_path else key
-                    if lines:
-                        lines.append('')
-                    lines.append(f'[[{full_path}]]')
-                    table_lines = elem.to_toml(0, full_path, {}, source).split('\n')
-                    lines.extend([line for line in table_lines if line.strip() and not line.strip().startswith('[')])
-        
-        for key, value in nested_tables:
-            full_path = f'{table_path}.{key}' if table_path else key
-            if lines:
-                lines.append('')
-            lines.append(f'[{full_path}]')
-            lines.append(value.to_toml(0, full_path, {}, source))
+                nested_content = value._to_toml_content(0, full_path, {}, source)
+                if nested_content:
+                    lines.append(nested_content)
+            
+            elif item_type == 'nested_array':
+                # Array of tables
+                for elem in value.elements:
+                    if isinstance(elem, TomlTable):
+                        full_path = f'{table_path}.{key}' if table_path else key
+                        if lines:
+                            lines.append('')
+                        lines.append(f'[[{full_path}]]')
+                        nested_content = elem._to_toml_content(0, full_path, {}, source)
+                        if nested_content:
+                            lines.append(nested_content)
         
         return '\n'.join(lines)
 

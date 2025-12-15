@@ -211,11 +211,11 @@ testEmbedBlockFromObjectWithoutStrings = {
             unrelatedKey: 'is not an embed block'
     """,
     "tomlexpected": """
-        [embedBlock]
-        unrelatedKey = "is not an embed block"
-        
         [embedBlock.embedContent]
         not = "content"
+        
+        [embedBlock]
+        unrelatedKey = "is not an embed block"
     """
 }
 

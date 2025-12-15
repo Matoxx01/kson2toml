@@ -8,13 +8,13 @@ testNestedListAndObjectFormatting = {
         - 2.1
     """,
     "tomlexpected": """
+    [nested_obj]
+    key = "value"
+    
     nested_list = [
         1.1,
         2.1
     ]
-    
-    [nested_obj]
-    key = "value"
     """
 }
 
@@ -29,14 +29,14 @@ testParsingMultiLevelMixedObjectsAndLists = {
     outer_key2: value
     """,
     "tomlexpected": """
-    outer_key2 = "value"
-    
     [outer_key1]
     inner_key = [
         1,
         2,
         3
     ]
+    
+    outer_key2 = "value"
     """
 }
 
