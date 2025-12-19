@@ -12,6 +12,7 @@ class Kson2TomlApp:
         self.root = root
         self.root.title("KSON to TOML Converter")
         self.root.geometry("900x700")
+        self.root.iconbitmap("favicon.ico")
         
         # Configurar estilo
         self.root.configure(bg="#f0f0f0")
