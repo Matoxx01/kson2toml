@@ -260,10 +260,17 @@ class TomlTable(TomlNode):
                     if key_part in self.properties:
                         key_line[key_part] = line_num
             
+            # Build a list of (key, key_line_num) sorted by line number
+            # This allows us to find comments that are before a key
+            sorted_keys = sorted(key_line.items(), key=lambda x: x[1])
+            
             for line_num, comment_list in comments.items():
-                for k, k_line in key_line.items():
-                    if k_line == line_num:
+                # Find which key this comment belongs to
+                # It belongs to the first key that appears on or after this line
+                for k, k_line in sorted_keys:
+                    if line_num <= k_line:
                         property_comments[k].extend(comment_list)
+                        break
         
         # Categorize properties while preserving order
         items_with_types = []
@@ -282,15 +289,28 @@ class TomlTable(TomlNode):
         
         # Track if we've emitted the header for simple values
         simple_section_header_emitted = False
+        # Track if we're in a context after array of tables (which will need section headers for embeds)
+        after_nested_array = False
         
         # Process items in original order
-        for key, value, item_type in items_with_types:
+        for idx, (key, value, item_type) in enumerate(items_with_types):
+            # Track if we just added a comment
+            has_comment_for_this_key = bool(property_comments[key])
+            
+            # Add blank line after array of tables before next item
+            if idx > 0 and items_with_types[idx - 1][2] == 'nested_array' and lines and not property_comments[key]:
+                lines.append('')
+            
+            # Add blank line before comment if there's content and this is a comment
+            if property_comments[key] and lines:
+                lines.append('')
+            
             for comment_text in property_comments[key]:
                 lines.append(comment_text)
             
             if item_type == 'simple':
                 # Emit table header before first simple value if there are nested structures
-                if not simple_section_header_emitted and table_path:
+                if not simple_section_header_emitted and table_path and not after_nested_array:
                     # Add blank line before header if there's content already
                     if lines and has_nested:
                         lines.append('')
@@ -298,10 +318,14 @@ class TomlTable(TomlNode):
                     simple_section_header_emitted = True
                 
                 if isinstance(value, TomlEmbed) and key != 'embedContent':
+                    # Emit embed as a table (always, especially when it has a tag)
                     full_path = f'{table_path}.{key}' if table_path else key
-                    if lines:
+                    # Don't add blank line if we just added a comment (comment already has spacing)
+                    if lines and not has_comment_for_this_key:
                         lines.append('')
                     lines.append(f'[{full_path}]')
+                    if value.tag:
+                        lines.append(f'embedTag = "{value.tag}"')
                     lines.append(f'embedContent = {value.to_toml(indent_level, {}, source)}')
                 else:
                     if key == 'embedContent' and isinstance(value, TomlString):
@@ -329,7 +353,7 @@ class TomlTable(TomlNode):
                         lines.append(nested_content)
                 else:
                     # If no parent path (root level), let the nested table emit everything
-                    nested_output = value.to_toml(0, full_path, comments={}, source=source)
+                    nested_output = value.to_toml(0, full_path, comments=comments, source=source)
                     if lines:
                         lines.append('')
                     lines.append(nested_output)
@@ -342,9 +366,13 @@ class TomlTable(TomlNode):
                         if lines:
                             lines.append('')
                         lines.append(f'[[{full_path}]]')
-                        nested_content = elem._to_toml_content(0, full_path, {}, source)
+                        nested_content = elem._to_toml_content(0, full_path, comments, source)
                         if nested_content:
                             lines.append(nested_content)
+                # After emitting array of tables, mark that we're in post-array context
+                # and reset the header emission flag so subsequent simple values will re-emit [table_path]
+                after_nested_array = True
+                simple_section_header_emitted = False
         
         return '\n'.join(lines)
     
@@ -371,10 +399,17 @@ class TomlTable(TomlNode):
                     if key_part in self.properties:
                         key_line[key_part] = line_num
             
+            # Build a list of (key, key_line_num) sorted by line number
+            # This allows us to find comments that are before a key
+            sorted_keys = sorted(key_line.items(), key=lambda x: x[1])
+            
             for line_num, comment_list in comments.items():
-                for k, k_line in key_line.items():
-                    if k_line == line_num:
+                # Find which key this comment belongs to
+                # It belongs to the first key that appears on or after this line
+                for k, k_line in sorted_keys:
+                    if line_num <= k_line:
                         property_comments[k].extend(comment_list)
+                        break
         
         # Categorize properties while preserving order
         items_with_types = []
@@ -387,8 +422,19 @@ class TomlTable(TomlNode):
                 item_type = 'simple'
             items_with_types.append((key, value, item_type))
         
+        # Track if we're in a context after array of tables
+        after_nested_array = False
+        
         # Process items in original order
-        for key, value, item_type in items_with_types:
+        for idx, (key, value, item_type) in enumerate(items_with_types):
+            # Add blank line after array of tables before next item
+            if idx > 0 and items_with_types[idx - 1][2] == 'nested_array' and lines:
+                lines.append('')
+            
+            # Add blank line before comment if there's content and this is a comment
+            if property_comments[key] and lines:
+                lines.append('')
+            
             for comment_text in property_comments[key]:
                 lines.append(comment_text)
             
@@ -398,8 +444,17 @@ class TomlTable(TomlNode):
                     if lines:
                         lines.append('')
                     lines.append(f'[{full_path}]')
+                    if value.tag:
+                        lines.append(f'embedTag = "{value.tag}"')
                     lines.append(f'embedContent = {value.to_toml(indent_level, {}, source)}')
                 else:
+                    # For regular simple values, if we're after arrays, emit table header first
+                    if after_nested_array and table_path:
+                        if lines:
+                            lines.append('')
+                        lines.append(f'[{table_path}]')
+                        after_nested_array = False
+                    
                     if key == 'embedContent' and isinstance(value, TomlString):
                         value.allow_multiline = False
                         value_str = value.to_toml(indent_level, {}, source)
@@ -433,6 +488,8 @@ class TomlTable(TomlNode):
                         nested_content = elem._to_toml_content(0, full_path, {}, source)
                         if nested_content:
                             lines.append(nested_content)
+                # Mark that we're after array of tables
+                after_nested_array = True
         
         return '\n'.join(lines)
 
