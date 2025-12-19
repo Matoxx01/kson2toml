@@ -4,12 +4,12 @@ Librería para la transformación de KSON a TOML.
 
 ## Descripción
 
-`kson2toml` es una librería Python que permite convertir strings a formato [KSON](https://github.com/kson-org/kson) a formato [TOML](https://toml.io/) (Tom's Obvious, Minimal Language). Esta librería utiliza el parser oficial de KSON y genera TOML válido y legible.
+`kson2toml` es una librería Python que permite convertir strings a formato [KSON](https://kson.org/) a formato [TOML](https://toml.io/) (Tom's Obvious, Minimal Language). Esta librería utiliza el parser oficial de KSON y genera TOML válido y legible.
 
 ## Instalación
 
 ```bash
-pip install kson2toml # Aun falta para su uso correcto
+pip install kson2toml
 ```
 
 O clona este repositorio:
@@ -21,39 +21,26 @@ cd kson2toml
 
 ## Uso
 
-### Uso Básico
+### Aplicación Gráfica
+
+Instala el paquete:
+
+```bash
+pip install kson2toml
+```
+
+Luego ejecuta:
+
+```bash
+kson2toml
+```
+
+### Uso en Código
 
 ```python
-# Uso official
-```
+from kson2toml import kson2toml
 
-## Ejemplo de Conversión
-
-### Entrada KSON:
-
-```kson
-person:
-  name: 'Leonardo Bonacci'
-  nickname: Fibonacci
-  favorite_books:
-    - title: Elements
-      author: Euclid
-    - title: Metaphysics
-      author: Aristotle
-  favorite_numbers:
-    - - 0
-      - 1
-      - 1
-      - 2
-```
-
-### Salida TOML:
-
-```toml
-name = "Leonardo Bonacci"
-nickname = "Fibonacci"
-favorite_books = [...]
-favorite_numbers = [[0, 1, 1, 2]]
+resultado = kson2toml(string_kson)
 ```
 
 ## API
@@ -70,22 +57,6 @@ Función principal que convierte un string KSON a TOML.
 
 **Excepciones:**
 - `ValueError`: Si el string KSON no es válido o contiene errores de sintaxis
-
-## Estructura del Proyecto
-
-```
-kson2toml/
-├── kson2toml/
-│   ├── __init__.py         # Package initialization
-│   ├── kson2toml.py        # Función principal de conversión
-│   └── ast.py              # AST y clases para representar nodos TOML
-├── tests/
-│   ├── test.py             # Tests de validación
-│   └── fibonacci_sequence.kson  # Archivo de ejemplo
-├── app.py                  # Aplicación de ejemplo
-├── Pipfile                 # Dependencias del proyecto
-└── README.md               # Este archivo
-```
 
 ## Clases AST
 
@@ -114,10 +85,6 @@ python tests/test.py
 - Python 3.13+
 - `kson-lang`: Parser oficial de KSON
 - `toml`: Parser y validador de TOML
-
-## Licencia
-
-Este proyecto es la librería de conversión KSON a TOML.
 
 ## Contribuir
 
