@@ -12,7 +12,13 @@ class Kson2TomlApp:
         self.root = root
         self.root.title("KSON to TOML Converter")
         self.root.geometry("900x700")
-        self.root.iconbitmap("favicon.ico")
+        
+        # Try to set icon if it exists
+        try:
+            if os.path.isfile("favicon.ico"):
+                self.root.iconbitmap("favicon.ico")
+        except Exception:
+            pass  # Icon not available, continue without it
         
         # Configurar estilo
         self.root.configure(bg="#f0f0f0")
